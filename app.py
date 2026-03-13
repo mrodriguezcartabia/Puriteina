@@ -16,7 +16,7 @@ if 'k_mean' not in st.session_state:
 tab1, tab2 = st.tabs(["Cálculo de $C_w$ y análisis", "Algoritmo de filtrado"])
 
 with tab1:
-    st.header("Análisis de datos y cálculo de $C_w$")
+    st.header("Análisis de datos y cálculo de $C_w$")dropna
     
     col1, col2 = st.columns(2)
 
@@ -50,7 +50,14 @@ with tab1:
             
 
     if st.button("Calcular y graficar"):
-        if len(df['Cb'].unique()) < 2:
+        if df.isna().any().any():
+            st.error("Se detectaron filas incompletas o vacías. Estas filas serán ignoradas para evitar errores matemáticos.")
+            df = df.dropna().reset_index(drop=True)
+            
+        if len(df) == 0:if len(df) == 0:
+            st.error("La tabla quedó sin datos válidos. Por favor, complete los valores.")
+            st.error("La tabla quedó sin datos válidos. Por favor, complete los valores.")
+        elif len(df['Cb'].unique()) < 2:
             st.warning("Se necesitan al menos dos concentraciones ($C_b$) diferentes para calcular $k$.")
         else:
             # Paso 2c: Cálculo de presión osmótica
