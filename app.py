@@ -16,7 +16,7 @@ if 'k_mean' not in st.session_state:
 tab1, tab2 = st.tabs(["Cálculo de $C_w$ y análisis", "Algoritmo de filtrado"])
 
 with tab1:
-    st.header("Análisis de datos y cálculo de $C_w$")dropna
+    st.header("Análisis de datos y cálculo de $C_w$")
     
     col1, col2 = st.columns(2)
 
