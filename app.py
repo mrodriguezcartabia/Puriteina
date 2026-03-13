@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from scipy.interpolate import interp1d
-from Procesar_df import procesar_data
+from utils import procesar_data
 # URL de la api: https://puriteina-cj2phtzq4expwnsbztit24.streamlit.app/
 
 # Configuración de la página
