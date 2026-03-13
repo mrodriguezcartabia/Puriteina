@@ -108,7 +108,8 @@ with tab1:
                           #hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
             
             fig.update_traces(mode='lines+markers')
-            #st.plotly_chart(fig, use_container_width=True)
+            st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
+            st.plotly_chart(fig, use_container_width=True)
 
             # C_w objetivo
             st.markdown("---")
@@ -148,9 +149,7 @@ with tab1:
                 
                 st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
                 st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
-                st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             else:
-                st.plotly_chart(fig, use_container_width=True)
                 st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
             
             with st.expander("Ver tabla de resultados completos"):
