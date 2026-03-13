@@ -124,7 +124,7 @@ with tab1:
         
             k_mean = 23 #np.mean(k_valores)
             st.session_state.k_mean = abs(k_mean)
-            st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
+            #st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             
             # Paso 2f: Cálculo de C_w para cada punto
             #df['Cw'] = df['Cb'] * np.exp(df['J'] / st.session_state.k_mean)
@@ -176,6 +176,7 @@ with tab1:
                 
                 st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
                 st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
+                st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             else:
                 st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
             
