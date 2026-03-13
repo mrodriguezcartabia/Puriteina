@@ -78,6 +78,7 @@ with tab1:
             
         if len(df) == 0:
             st.error("La tabla quedó sin datos válidos. Por favor, complete los valores.")
+            
         elif len(df['Cb'].unique()) < 2:
             st.warning("Se necesitan al menos dos concentraciones ($C_b$) diferentes para calcular $k$.")
         else:
@@ -86,29 +87,38 @@ with tab1:
             
             # Paso 2d: Cálculo de k para Delta_pi fija
             cb_vals = sorted(df['Cb'].unique())
-            cb1, cb2 = cb_vals[0], cb_vals[-1] # Tomamos los extremos para mayor claridad
+
+            dfs_dict = {}
+            fjs_dict = {}
             
-            df1 = df[df['Cb'] == cb1].sort_values('Delta_pi')
-            df2 = df[df['Cb'] == cb2].sort_values('Delta_pi')
-            
-            # Funciones de interpolación para J en función de Delta_pi
-            f_j1 = interp1d(df1['Delta_pi'], df1['J'], kind='linear', fill_value="extrapolate")
-            f_j2 = interp1d(df2['Delta_pi'], df2['J'], kind='linear', fill_value="extrapolate")
-            
+            for cb in cb_vals:
+                df_cb = df[df['Cb'] == cb].sort_values('Delta_pi')
+                dfs_dict[cb] = df_cb
+
+                if len(df_cb) > 1: # Se necesitan al menos 2 puntos para interpolar
+                    fjs_dict[cb] = interp1d(df_cb['Delta_pi'], df_cb['J'], kind='linear', fill_value="extrapolate")
+                    
             # Crear un rango común de Delta_pi superpuesto para evaluar
-            min_pi = max(df1['Delta_pi'].min(), df2['Delta_pi'].min())
-            max_pi = min(df1['Delta_pi'].max(), df2['Delta_pi'].max())
+            min_pi = max(df_cb['Delta_pi'].min() for df_cb in dfs.values())
+            max_pi = min(df_cb['Delta_pi'].max() for df_cb in dfs.values())
             
             if min_pi < max_pi:
                 pi_range = np.linspace(min_pi, max_pi, 10)
-                j1_interp = f_j1(pi_range)
-                j2_interp = f_j2(pi_range)
+                j_interp_dict = {}
                 
-                # k = (J1 - J2) / (ln(Cb2) - ln(Cb1))
-                k_array = (j1_interp - j2_interp) / (np.log(cb2) - np.log(cb1))
+                for i in range(len(cb_vals) - 1):
+                    cb1 = cb_vals[i]
+                    cb2 = cb_vals[i+1]
+                    
+                    j1_interp = fjs_dict[cb1](pi_range)
+                    j2_interp = fjs_dict[cb2](pi_range)
+                    
+                    # k = (J1 - J2) / (ln(Cb2) - ln(Cb1))
+                    k_par = (j1_interp - j2_interp) / (np.log(cb2) - np.log(cb1))
+                    k_valores.extend(k_par)
+            
                 k_mean = np.mean(k_array)
-                st.session_state.k_mean = abs(k_mean) # Guardar en session_state
-                
+                st.session_state.k_mean = abs(k_mean)
                 st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
                 
                 # Paso 2f: Cálculo de C_w para cada punto
