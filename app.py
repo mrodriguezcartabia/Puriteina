@@ -29,8 +29,8 @@ with tab1:
         # Inicializar los datos en el estado de la sesión si no existen
         if 'df_data' not in st.session_state:
             st.session_state.df_data = pd.DataFrame({
-                'TMP': ["0.0"],
-                'J': ["0.0"],
+                'TMP ': ["0.0"],
+                'J (L/[m^2h])': ["0.0"],
                 'Cb': ["0.0"]
             })
 
@@ -109,7 +109,7 @@ with tab1:
                 
                 # Paso 2e: Gráfico interactivo con Plotly
                 fig = px.line(df, x='TMP', y='J', color='Cb', markers=True,
-                              title="Curvas de $J$ contra $TMP$ interponaladas",
+                              title="Curvas de J contra TMP interponaladas",
                               labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'C_b': 'Concentración (C_b)'},
                               hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
                 
