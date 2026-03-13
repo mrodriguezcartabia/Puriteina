@@ -90,7 +90,7 @@ with tab1:
                 fig = px.line(df, x='TMP', y='J', color='Cb', markers=True,
                               title="Curvas de $J$ contra $TMP$ interponaladas",
                               labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'C_b': 'Concentración (C_b)'},
-                              hover_data={'C_w': ':.2f', 'Delta_pi': ':.2f'})
+                              hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
                 
                 fig.update_traces(mode='lines+markers')
                 st.plotly_chart(fig, use_container_width=True)
