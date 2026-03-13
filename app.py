@@ -136,7 +136,7 @@ with tab1:
                           #hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
             
             fig.update_traces(mode='lines+markers')
-            st.plotly_chart(fig, use_container_width=True)
+            #st.plotly_chart(fig, use_container_width=True)
 
             # C_w objetivo
             st.markdown("---")
@@ -171,7 +171,7 @@ with tab1:
                 for _, row in df_puntos.iterrows():
                     fig.add_scatter(x=[row['TMP']], y=[row['J']], 
                                     mode='markers', 
-                                    marker=dict(size=12, symbol='star', color='black'),
+                                    marker=dict(size=12, symbol='star', color='gold'),
                                     name=f"Target en Cb:{row['Cb']}")
                 
                 st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
