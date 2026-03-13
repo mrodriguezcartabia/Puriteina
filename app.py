@@ -26,7 +26,6 @@ with tab1:
         Luego, para distintos valores de $C_b$ y $TMP$, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.
         Nota: se puede copiar y pegar columnas enteras desde Excel.""")
         
-        # Datos por defecto para que la app funcione de entrada
         # Inicializar los datos en el estado de la sesión si no existen
         if 'df_data' not in st.session_state:
             st.session_state.df_data = pd.DataFrame({
@@ -44,9 +43,12 @@ with tab1:
             })
             st.rerun()
         
-        #df = st.data_editor(df_data, num_rows="dynamic")
-        #Agregamos una lìnea para leer los decimales al importar desde una hoja de càlculo
-        df = df.astype(str).replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
+        # Mostramos el editor conectado al session_state y guardamos los cambios en df_editado
+        df_editado = st.data_editor(st.session_state.df_data, num_rows="dynamic")
+        
+        # Agregamos la línea para leer los decimales al importar desde una hoja de cálculo
+        # y convertimos el texto a números de forma segura
+        df = df_editado.astype(str).replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
             
     with col2:
         st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
