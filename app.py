@@ -227,3 +227,18 @@ with tab2:
             
             **Precaución:** No modifique la potencia del motor durante este paso para evitar alterar el coeficiente de transferencia de masa ($k$).
             """)
+            # --- NUEVO: Visualización de la curva ---
+            st.markdown("### Curva teórica de flujo vs. concentración")
+            
+            # Generar puntos para el gráfico
+            cb_array = np.linspace(cb_inicial, cb_final, 100)
+            j_array = k * np.log(cw_target / cb_array)
+            
+            # Crear un DataFrame para Streamlit
+            df_chart = pd.DataFrame({
+                'Concentración ($C_b$)': cb_array,
+                'Flujo Objetivo ($J$)': j_array
+            }).set_index('Concentración ($C_b$)')
+            
+            # Mostrar el gráfico nativo de Streamlit
+            st.line_chart(df_chart)
