@@ -19,8 +19,8 @@ with tab1:
     st.header("Análisis de datos y cálculo de $C_w$")
     
     col1, col2 = st.columns(2)
-    
-        with col1:
+
+    with col1:
         st.subheader("PIngreso de datos")
         st.markdown("""Ingrese los valores de $TMP$, $J$ y $C_b$. Para esto trabaje con volumen constante de soluciòn. 
         Luego, para distintos valores de $C_b$ y $TMP, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.""")
@@ -34,7 +34,7 @@ with tab1:
         
         df = st.data_editor(default_data, num_rows="dynamic")
             
-        with col2:
+    with col2:
         st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
         st.markdown("Ingrese los datos medidos con solvente **sin proteína**:")
         j_solv = st.number_input("Flujo del solvente ($J$)", value=50.0, step=1.0)
