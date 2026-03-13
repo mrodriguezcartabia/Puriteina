@@ -13,7 +13,7 @@ st.title("Modelo de control con $C_{wall}$ constante")
 if 'k_mean' not in st.session_state:
     st.session_state.k_mean = None
 
-tab1, tab2 = st.tabs(["Cálculo de C_w y análisis", "Algoritmo de filtrado"])
+tab1, tab2 = st.tabs(["Cálculo de $C_w$ y análisis", "Algoritmo de filtrado"])
 
 with tab1:
     st.header("Análisis de datos y cálculo de $C_w$")
