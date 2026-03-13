@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from itertools import combinations
+import pandas as pd
 
 def procesar_data (df, L_fm):
     df['Delta_pi'] = df['TMP'] - (df['J'] / L_fm)
