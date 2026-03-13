@@ -161,8 +161,8 @@ with tab1:
             else:
                 st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
             
-            with st.expander("Ver tabla de resultados completos"):
-                st.dataframe(df.style.format("{:.2f}"))
+            #with st.expander("Ver tabla de resultados completos"):
+            #    st.dataframe(df.style.format("{:.2f}"))
             
 
 with tab2:
