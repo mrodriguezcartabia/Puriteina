@@ -60,10 +60,29 @@ with tab1:
         # y convertimos el texto a números de forma segura
         df = df_editado.astype(str).replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
             
+    # 1. Inicializamos el valor por defecto si no existe
+    if "j_solv_val" not in st.session_state:
+        st.session_state.j_solv_val = 50.0
+    
+    # --- Sección del Botón (en tu otra columna) ---
+    if st.button("Cargar datos de prueba"):
+        st.session_state.j_solv_val = 200.0
+        # Forzamos el rerun para que el widget se actualice visualmente de inmediato
+        st.rerun()
+    
+    # --- Tu Sección Original ---
     with col2:
         st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
         st.markdown("Ingrese los datos medidos con solvente **sin proteína**:")
-        j_solv = st.number_input("Flujo del solvente ($J$)", value=50.0, step=1.0)
+        
+        # 2. Vinculamos el valor al session_state usando 'value' y 'key'
+        j_solv = st.number_input(
+            "Flujo del solvente ($J$)", 
+            value=st.session_state.j_solv_val, 
+            step=1.0,
+            key="j_solv_input" # Key interna para el widget
+        )
+        
         tmp_solv = st.number_input("Presión Transmembrana ($TMP$)", value=1.0, step=0.1)
         
         if tmp_solv > 0:
