@@ -27,15 +27,26 @@ with tab1:
         Nota: se puede copiar y pegar columnas enteras desde Excel.""")
         
         # Datos por defecto para que la app funcione de entrada
-        default_data = pd.DataFrame({
-            'TMP': [0.0],
-            'J': [0.0],
-            'Cb': [0.0]
-        })
+        # Inicializar los datos en el estado de la sesión si no existen
+        if 'df_data' not in st.session_state:
+            st.session_state.df_data = pd.DataFrame({
+                'TMP': ["0.0"],
+                'J': ["0.0"],
+                'Cb': ["0.0"]
+            })
+
+        # Botón para cargar datos de prueba funcionales
+        if st.button("Cargar datos de prueba"):
+            st.session_state.df_data = pd.DataFrame({
+                'TMP': ["1.0", "2.0", "3.0", "4.0, 2.0, 3.0, 4.0, 5.0],
+                'J': ["30.0", "50.0", "65.0", "75.0", "10.0", "25.0", "40.0", "50.0"],
+                'Cb': ["10.0", "10.0", "10.0", "10.0", "50.0", "50.0", "50.0", 50.0"]
+            })
+            st.rerun()
         
-        df = st.data_editor(default_data, num_rows="dynamic")
+        #df = st.data_editor(df_data, num_rows="dynamic")
         #Agregamos una lìnea para leer los decimales al importar desde una hoja de càlculo
-        df = df.replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
+        df = df.astype(str).replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
             
     with col2:
         st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
