@@ -23,7 +23,7 @@ with tab1:
     with col1:
         st.subheader("PIngreso de datos")
         st.markdown("""Ingrese los valores de $TMP$, $J$ y $C_b$. Para esto trabaje con volumen constante de soluciòn. 
-        Luego, para distintos valores de $C_b$ y $TMP, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.""")
+        Luego, para distintos valores de $C_b$ y $TMP$, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.""")
         
         # Datos por defecto para que la app funcione de entrada
         default_data = pd.DataFrame({
