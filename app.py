@@ -105,6 +105,7 @@ with tab1:
             if min_pi < max_pi:
                 pi_range = np.linspace(min_pi, max_pi, 10)
                 j_interp_dict = {}
+                k_valores = []
                 
                 for i in range(len(cb_vals) - 1):
                     cb1 = cb_vals[i]
