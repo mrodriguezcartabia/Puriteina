@@ -34,6 +34,8 @@ with tab1:
         })
         
         df = st.data_editor(default_data, num_rows="dynamic")
+        #Agregamos una lìnea para leer los decimales al importar desde una hoja de càlculo
+        df = df.replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
             
     with col2:
         st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
