@@ -141,7 +141,7 @@ with tab1:
             # C_w objetivo
             st.markdown("---")
             st.subheader("Análisis de $C_{wall}$ objetivo")
-            cw_user = st.number_input("Defina un valor de $C_w$ objetivo para encontrar en las curvas:", value=100.0)
+            cw_user = st.number_input("Defina un valor de $C_w$ objetivo para encontrar en las curvas:", value=0.0)
 
             puntos_interpolados = []
             
@@ -178,6 +178,7 @@ with tab1:
                 st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
                 st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             else:
+                st.plotly_chart(fig, use_container_width=True)
                 st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
             
             with st.expander("Ver tabla de resultados completos"):
