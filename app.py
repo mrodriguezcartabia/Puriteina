@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from scipy.interpolate import interp1d
-# https://puriteina-cj2phtzq4expwnsbztit24.streamlit.app/
+# URL de la api: https://puriteina-cj2phtzq4expwnsbztit24.streamlit.app/
 
 # Configuración de la página
 st.set_page_config(page_title="Control C_wall - Van Reis", layout="wide")
@@ -21,9 +21,10 @@ with tab1:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("PIngreso de datos")
+        st.subheader("Ingreso de datos")
         st.markdown("""Ingrese los valores de $TMP$, $J$ y $C_b$. Para esto trabaje con volumen constante de soluciòn. 
-        Luego, para distintos valores de $C_b$ y $TMP$, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.""")
+        Luego, para distintos valores de $C_b$ y $TMP$, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.
+        Nota: se puede copiar y pegar columnas enteras desde Excel.""")
         
         # Datos por defecto para que la app funcione de entrada
         default_data = pd.DataFrame({
@@ -111,7 +112,7 @@ with tab2:
         col3, col4, col5 = st.columns(3)
         cb_inicial = col3.number_input("Concentración inicial ($C_{b, inicial}$)", value=1.0, step=0.01)
         cb_final = col4.number_input("Concentración Final ($C_{b, final}$)", value=50.0, step=0.01)
-        cw_target = col5.number_input("Concentración en Pared Objetivo ($C_w$)", value=100.0, step=0.01)
+        cw_target = col5.number_input("Concentración en pared objetivo ($C_w$)", value=100.0, step=0.01)
         
         if cw_target <= cb_inicial:
             st.error("$C_w$ debe ser estrictamente mayor a la concentración inicial.")
@@ -132,7 +133,7 @@ with tab2:
             *(Calculado mediante $J = k \cdot \ln(C_w / C_{{b, inicial}})$ con $k = {k:.2f}$)*
             """)
             
-            st.markdown("### Paso 2: Ejecución Dinámica")
+            st.markdown("### Paso 2: Ejecución dinámica")
             st.success(f"""
             A medida que el proceso avanza y la concentración $C_b$ aumenta desde {cb_inicial} hacia {cb_final}, el flujo objetivo irá disminuyendo.
             
