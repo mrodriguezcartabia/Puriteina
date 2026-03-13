@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from scipy.interpolate import interp1d
+from Procesar_df import procesar_data
 # URL de la api: https://puriteina-cj2phtzq4expwnsbztit24.streamlit.app/
 
 # Configuración de la página
@@ -122,7 +123,7 @@ with tab1:
                 j1_interp = fjs_dict[cb1](TMP_range)
                 j2_interp = fjs_dict[cb2](TMP_range)
         
-            k_mean = 23 #np.mean(k_valores)
+            k_mean = procesar_data(df, L_fm)
             st.session_state.k_mean = abs(k_mean)
             #st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             
