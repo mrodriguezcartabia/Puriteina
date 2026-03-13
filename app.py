@@ -22,16 +22,16 @@ with tab1:
 
     with col1:
         st.subheader("Ingreso de datos")
-        st.markdown("""Ingrese los valores de $TMP$, $J$ y $C_b$. Para esto trabaje con volumen constante de soluciòn. 
+        st.markdown("""Ingrese los valores de $TMP$  en bar, $J$  en L/(m^2h) y $C_b$  en g/L. Para esto trabaje con volumen constante de soluciòn. 
         Luego, para distintos valores de $C_b$ y $TMP$, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.
         Nota: se puede copiar y pegar columnas enteras desde Excel.""")
         
         # Inicializar los datos en el estado de la sesión si no existen
         if 'df_data' not in st.session_state:
             st.session_state.df_data = pd.DataFrame({
-                'TMP en bar': ["0.0"],
-                'J en L/(m^2h)': ["0.0"],
-                'Cb en g/L': ["0.0"]
+                'TMP': ["0.0"],
+                'J': ["0.0"],
+                'Cb': ["0.0"]
             })
 
         # Botón para cargar datos de prueba funcionales
@@ -64,7 +64,14 @@ with tab1:
             L_fm = 1.0 # fallback
             
 
+    # Creamos un estado para saber si ya se hizo el cálculo
+    if 'calculado' not in st.session_state:
+        st.session_state.calculado = False
+
     if st.button("Calcular y graficar"):
+        st.session_state.calculado = True
+
+    if st.session_state.calculado: # Ahora el contenido no desaparece
         if df.isna().any().any():
             st.error("Se detectaron filas incompletas o vacías. Estas filas serán ignoradas para evitar errores matemáticos.")
             df = df.dropna().reset_index(drop=True)
@@ -115,6 +122,47 @@ with tab1:
                 
                 fig.update_traces(mode='lines+markers')
                 st.plotly_chart(fig, use_container_width=True)
+
+                # C_w objetivo
+                st.markdown("---")
+                st.subheader("Análisis de $C_{wall}$ objetivo")
+                cw_user = st.number_input("Defina un valor de $C_w$ objetivo para encontrar en las curvas:", value=100.0)
+
+                puntos_interpolados = []
+                
+                for cb in df['Cb'].unique():
+                    # Para cada concentración, necesitamos saber qué J corresponde al Cw elegido
+                    # J = k * ln(Cw / Cb)
+                    j_target = st.session_state.k_mean * np.log(cw_user / cb)
+                    
+                    # Filtramos los datos de esta concentración
+                    df_sub = df[df['Cb'] == cb].sort_values('J')
+                    
+                    # Verificamos si el flujo calculado está dentro del rango medido para interpolar el TMP
+                    if df_sub['J'].min() <= j_target <= df_sub['J'].max():
+                        f_tmp = interp1d(df_sub['J'], df_sub['TMP'], kind='linear')
+                        tmp_target = f_tmp(j_target)
+                        
+                        puntos_interpolados.append({
+                            'TMP': tmp_target,
+                            'J': j_target,
+                            'Cb': cb,
+                            'Leyenda': f'Punto Cw={cw_user}'
+                        })
+
+                if puntos_interpolados:
+                    df_puntos = pd.DataFrame(puntos_interpolados)
+                    # Agregamos los puntos encontrados al gráfico existente
+                    for _, row in df_puntos.iterrows():
+                        fig.add_scatter(x=[row['TMP']], y=[row['J']], 
+                                        mode='markers', 
+                                        marker=dict(size=12, symbol='star', color='black'),
+                                        name=f"Target en Cb:{row['Cb']}")
+                    
+                    st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
+                    st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
+                else:
+                    st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
                 
                 with st.expander("Ver tabla de resultados completos"):
                     st.dataframe(df.style.format("{:.2f}"))
