@@ -7,21 +7,35 @@ from scipy.interpolate import interp1d
 
 # Configuración de la página
 st.set_page_config(page_title="Control C_wall - Van Reis", layout="wide")
-st.title("Modelo de Control de Ultrafiltración a $C_{wall}$ Constante")
+st.title("Modelo de control con $C_{wall}$ constante")
 
 # Inicializar variables en session_state para compartir entre pestañas
 if 'k_mean' not in st.session_state:
     st.session_state.k_mean = None
 
-tab1, tab2 = st.tabs(["1. Cálculo de C_w y Análisis", "2. Algoritmo de Filtrado"])
+tab1, tab2 = st.tabs(["Cálculo de C_w y análisis", "Algoritmo de filtrado"])
 
 with tab1:
-    st.header("Análisis de Datos y Cálculo de $C_w$")
+    st.header("Análisis de datos y cálculo de $C_w$")
     
     col1, col2 = st.columns(2)
     
-    with col1:
-        st.subheader("Paso 2b: Permeabilidad de la membrana sucia ($L_{fm}$)")
+        with col1:
+        st.subheader("PIngreso de datos")
+        st.markdown("""Ingrese los valores de $TMP$, $J$ y $C_b$. Para esto trabaje con volumen constante de soluciòn. 
+        Luego, para distintos valores de $C_b$ y $TMP, calcule $J$. Se necesitan al menos dos valores distintos de $C_b$.""")
+        
+        # Datos por defecto para que la app funcione de entrada
+        default_data = pd.DataFrame({
+            'TMP': [1.0, 1.0],
+            'J': [1.0, 1.0],
+            'Cb': [1.0, 1.0]
+        })
+        
+        df = st.data_editor(default_data, num_rows="dynamic")
+            
+        with col2:
+        st.subheader("Permeabilidad de la membrana sucia ($L_{fm}$)")
         st.markdown("Ingrese los datos medidos con solvente **sin proteína**:")
         j_solv = st.number_input("Flujo del solvente ($J$)", value=50.0, step=1.0)
         tmp_solv = st.number_input("Presión Transmembrana ($TMP$)", value=1.0, step=0.1)
@@ -33,20 +47,8 @@ with tab1:
             st.error("TMP debe ser mayor a 0.")
             L_fm = 1.0 # fallback
             
-    with col2:
-        st.subheader("Paso 2a: Ingreso de Datos")
-        st.markdown("Ingrese los valores de $TMP$, $J$ y $C_b$. Se necesitan al menos dos valores distintos de $C_b$.")
-        
-        # Datos por defecto para que la app funcione de entrada
-        default_data = pd.DataFrame({
-            'TMP': [0.5, 1.0, 1.5, 2.0, 0.5, 1.0, 1.5, 2.0],
-            'J': [15.0, 25.0, 30.0, 32.0, 10.0, 18.0, 22.0, 23.0],
-            'Cb': [10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0]
-        })
-        
-        df = st.data_editor(default_data, num_rows="dynamic")
 
-    if st.button("Calcular y Graficar"):
+    if st.button("Calcular y graficar"):
         if len(df['Cb'].unique()) < 2:
             st.warning("Se necesitan al menos dos concentraciones ($C_b$) diferentes para calcular $k$.")
         else:
@@ -85,9 +87,9 @@ with tab1:
                 
                 # Paso 2e: Gráfico interactivo con Plotly
                 fig = px.line(df, x='TMP', y='J', color='Cb', markers=True,
-                              title="Curvas de Flujo vs TMP interponaladas",
-                              labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'Cb': 'Concentración (C_b)'},
-                              hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
+                              title="Curvas de $J$ contra $TMP$ interponaladas",
+                              labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'C_b': 'Concentración (C_b)'},
+                              hover_data={'C_w': ':.2f', 'Delta_pi': ':.2f'})
                 
                 fig.update_traces(mode='lines+markers')
                 st.plotly_chart(fig, use_container_width=True)
@@ -98,18 +100,18 @@ with tab1:
                 st.error("No hay superposición suficiente en los valores de Presión Osmótica para interpolar y calcular k.")
 
 with tab2:
-    st.header("Algoritmo de Proceso de Filtrado")
+    st.header("Algoritmo de proceso de filtrado")
     
     if st.session_state.k_mean is None:
-        st.warning("Primero debes calcular el coeficiente $k$ en la Pestaña 1 para utilizar el algoritmo.")
+        st.warning("Primero debes calcular el coeficiente $k$ en la pestaña anterior para utilizar el algoritmo.")
     else:
         k = st.session_state.k_mean
         
-        st.subheader("Paso 3a: Parámetros del Proceso")
+        st.subheader("Parámetros del proceso")
         col3, col4, col5 = st.columns(3)
-        cb_inicial = col3.number_input("Concentración Inicial ($C_{b, inicial}$)", value=10.0, step=1.0)
-        cb_final = col4.number_input("Concentración Final ($C_{b, final}$)", value=50.0, step=1.0)
-        cw_target = col5.number_input("Concentración en Pared Objetivo ($C_w$)", value=100.0, step=1.0)
+        cb_inicial = col3.number_input("Concentración inicial ($C_{b, inicial}$)", value=1.0, step=0.01)
+        cb_final = col4.number_input("Concentración Final ($C_{b, final}$)", value=50.0, step=0.01)
+        cw_target = col5.number_input("Concentración en Pared Objetivo ($C_w$)", value=100.0, step=0.01)
         
         if cw_target <= cb_inicial:
             st.error("$C_w$ debe ser estrictamente mayor a la concentración inicial.")
@@ -118,11 +120,11 @@ with tab2:
             j_inicial = k * np.log(cw_target / cb_inicial)
             
             st.markdown("---")
-            st.subheader("Instrucciones de Operación")
+            st.subheader("Instrucciones de operación")
             
-            st.markdown("### Paso 1: Configuración Inicial")
+            st.markdown("### Paso 1: Configuración inicial")
             st.info(f"""
-            1. Abra la válvula de retentado **al máximo** para minimizar la TMP.
+            1. Abra la válvula de retentado **al máximo** para minimizar la $TMP$.
             2. Ajuste la potencia del motor (bomba de alimentación) de forma tal que el flujo de permeado ($J$) alcance exactamente:
             
             **$J_0 = {j_inicial:.2f}$**
