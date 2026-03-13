@@ -29,9 +29,9 @@ with tab1:
         # Inicializar los datos en el estado de la sesión si no existen
         if 'df_data' not in st.session_state:
             st.session_state.df_data = pd.DataFrame({
-                'TMP ': ["0.0"],
-                'J (L/[m^2h])': ["0.0"],
-                'Cb': ["0.0"]
+                'TMP en bar': ["0.0"],
+                'J en L/(m^2h)': ["0.0"],
+                'Cb en g/L': ["0.0"]
             })
 
         # Botón para cargar datos de prueba funcionales
@@ -58,7 +58,7 @@ with tab1:
         
         if tmp_solv > 0:
             L_fm = j_solv / tmp_solv
-            st.info(f"Permeabilidad calculada: **$L_{{fm}}$ = {L_fm:.2f}**")
+            st.info(f"Permeabilidad calculada en Lm^2/(h bar): **$L_{{fm}}$ = {L_fm:.2f}**")
         else:
             st.error("TMP debe ser mayor a 0.")
             L_fm = 1.0 # fallback
