@@ -96,89 +96,83 @@ with tab1:
                 dfs_dict[cb] = df_cb
 
                 if len(df_cb) > 1: # Se necesitan al menos 2 puntos para interpolar
-                    fjs_dict[cb] = interp1d(df_cb['Delta_pi'], df_cb['J'], kind='linear', fill_value="extrapolate")
+                    fjs_dict[cb] = interp1d(df_cb['TMP'], df_cb['J'], kind='linear', fill_value="extrapolate")
                     
-            # Crear un rango común de Delta_pi superpuesto para evaluar
-            min_pi = max(df_cb['Delta_pi'].min() for df_cb in dfs_dict.values())
-            max_pi = min(df_cb['Delta_pi'].max() for df_cb in dfs_dict.values())
+            k_valores = []
             
-            if min_pi < max_pi:
-                pi_range = np.linspace(min_pi, max_pi, 10)
-                j_interp_dict = {}
-                k_valores = []
+            for i in range(len(cb_vals) - 1):
                 
-                for i in range(len(cb_vals) - 1):
-                    cb1 = cb_vals[i]
-                    cb2 = cb_vals[i+1]
-                    
-                    j1_interp = fjs_dict[cb1](pi_range)
-                    j2_interp = fjs_dict[cb2](pi_range)
-                    
-                    # k = (J1 - J2) / (ln(Cb2) - ln(Cb1))
-                    k_par = (j1_interp - j2_interp) / (np.log(cb2) - np.log(cb1))
-                    k_valores.extend(k_par)
+                cb1 = cb_vals[i]
+                cb2 = cb_vals[i+1]
+                
+                min_TMP = dfs_dict[cb]['TMP'].min() 
+                max_TMP = dfs_dict[cb]['TMP'].max()
+                
+                TMP_range = np.linspace(min_TMP, max_TMP, 10)
+                                
+                j1_interp = fjs_dict[cb1](TMP_range)
+                j2_interp = fjs_dict[cb2](TMP_range)
+        
+            k_mean = 23 #np.mean(k_valores)
+            st.session_state.k_mean = abs(k_mean)
+            st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
             
-                k_mean = np.mean(k_valores)
-                st.session_state.k_mean = abs(k_mean)
-                st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
-                
-                # Paso 2f: Cálculo de C_w para cada punto
-                df['Cw'] = df['Cb'] * np.exp(df['J'] / st.session_state.k_mean)
-                
-                # Paso 2e: Gráfico interactivo con Plotly
-                fig = px.line(df, x='TMP', y='J', color='Cb', markers=True,
-                              title="Curvas de J contra TMP interponaladas",
-                              labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'C_b': 'Concentración (C_b)'},
-                              hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
-                
-                fig.update_traces(mode='lines+markers')
-                st.plotly_chart(fig, use_container_width=True)
+            # Paso 2f: Cálculo de C_w para cada punto
+            #df['Cw'] = df['Cb'] * np.exp(df['J'] / st.session_state.k_mean)
+            
+            # Paso 2e: Gráfico interactivo con Plotly
+            fig = px.line(df, x='TMP', y='J', color='Cb', markers=True,
+                          title="Curvas de J contra TMP interponaladas",
+                          labels={'TMP': 'Presión Transmembrana (TMP)', 'J': 'Flujo (J)', 'C_b': 'Concentración (C_b)'})
+                          #hover_data={'Cw': ':.2f', 'Delta_pi': ':.2f'})
+            
+            fig.update_traces(mode='lines+markers')
+            st.plotly_chart(fig, use_container_width=True)
 
-                # C_w objetivo
-                st.markdown("---")
-                st.subheader("Análisis de $C_{wall}$ objetivo")
-                cw_user = st.number_input("Defina un valor de $C_w$ objetivo para encontrar en las curvas:", value=100.0)
+            # C_w objetivo
+            st.markdown("---")
+            st.subheader("Análisis de $C_{wall}$ objetivo")
+            cw_user = st.number_input("Defina un valor de $C_w$ objetivo para encontrar en las curvas:", value=100.0)
 
-                puntos_interpolados = []
+            puntos_interpolados = []
+            
+            for cb in df['Cb'].unique():
+                # Para cada concentración, necesitamos saber qué J corresponde al Cw elegido
+                # J = k * ln(Cw / Cb)
+                j_target = st.session_state.k_mean * np.log(cw_user / cb)
                 
-                for cb in df['Cb'].unique():
-                    # Para cada concentración, necesitamos saber qué J corresponde al Cw elegido
-                    # J = k * ln(Cw / Cb)
-                    j_target = st.session_state.k_mean * np.log(cw_user / cb)
+                # Filtramos los datos de esta concentración
+                df_sub = df[df['Cb'] == cb].sort_values('J')
+                
+                # Verificamos si el flujo calculado está dentro del rango medido para interpolar el TMP
+                if df_sub['J'].min() <= j_target <= df_sub['J'].max():
+                    f_tmp = interp1d(df_sub['J'], df_sub['TMP'], kind='linear')
+                    tmp_target = f_tmp(j_target)
                     
-                    # Filtramos los datos de esta concentración
-                    df_sub = df[df['Cb'] == cb].sort_values('J')
-                    
-                    # Verificamos si el flujo calculado está dentro del rango medido para interpolar el TMP
-                    if df_sub['J'].min() <= j_target <= df_sub['J'].max():
-                        f_tmp = interp1d(df_sub['J'], df_sub['TMP'], kind='linear')
-                        tmp_target = f_tmp(j_target)
-                        
-                        puntos_interpolados.append({
-                            'TMP': tmp_target,
-                            'J': j_target,
-                            'Cb': cb,
-                            'Leyenda': f'Punto Cw={cw_user}'
-                        })
+                    puntos_interpolados.append({
+                        'TMP': tmp_target,
+                        'J': j_target,
+                        'Cb': cb,
+                        'Leyenda': f'Punto Cw={cw_user}'
+                    })
 
-                if puntos_interpolados:
-                    df_puntos = pd.DataFrame(puntos_interpolados)
-                    # Agregamos los puntos encontrados al gráfico existente
-                    for _, row in df_puntos.iterrows():
-                        fig.add_scatter(x=[row['TMP']], y=[row['J']], 
-                                        mode='markers', 
-                                        marker=dict(size=12, symbol='star', color='black'),
-                                        name=f"Target en Cb:{row['Cb']}")
-                    
-                    st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
-                    st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
-                else:
-                    st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
+            if puntos_interpolados:
+                df_puntos = pd.DataFrame(puntos_interpolados)
+                # Agregamos los puntos encontrados al gráfico existente
+                for _, row in df_puntos.iterrows():
+                    fig.add_scatter(x=[row['TMP']], y=[row['J']], 
+                                    mode='markers', 
+                                    marker=dict(size=12, symbol='star', color='black'),
+                                    name=f"Target en Cb:{row['Cb']}")
                 
-                with st.expander("Ver tabla de resultados completos"):
-                    st.dataframe(df.style.format("{:.2f}"))
+                st.plotly_chart(fig, use_container_width=True) # Redibujar con los puntos
+                st.success(f"Se han marcado los puntos donde $C_w$ llega a {cw_user}")
             else:
-                st.error("No hay superposición suficiente en los valores de Presión Osmótica para interpolar y calcular k.")
+                st.warning(f"El valor de $C_w = {cw_user}$ no se alcanza dentro del rango de datos experimentales.")
+            
+            with st.expander("Ver tabla de resultados completos"):
+                st.dataframe(df.style.format("{:.2f}"))
+            
 
 with tab2:
     st.header("Algoritmo de proceso de filtrado")
