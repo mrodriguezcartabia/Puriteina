@@ -54,8 +54,7 @@ with tab1:
             st.error("Se detectaron filas incompletas o vacías. Estas filas serán ignoradas para evitar errores matemáticos.")
             df = df.dropna().reset_index(drop=True)
             
-        if len(df) == 0:if len(df) == 0:
-            st.error("La tabla quedó sin datos válidos. Por favor, complete los valores.")
+        if len(df) == 0:
             st.error("La tabla quedó sin datos válidos. Por favor, complete los valores.")
         elif len(df['Cb'].unique()) < 2:
             st.warning("Se necesitan al menos dos concentraciones ($C_b$) diferentes para calcular $k$.")
