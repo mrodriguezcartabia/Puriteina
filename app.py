@@ -118,7 +118,7 @@ with tab1:
                     k_par = (j1_interp - j2_interp) / (np.log(cb2) - np.log(cb1))
                     k_valores.extend(k_par)
             
-                k_mean = np.mean(k_array)
+                k_mean = np.mean(k_valores)
                 st.session_state.k_mean = abs(k_mean)
                 st.success(f"Coeficiente de transferencia de masa calculado: **$k$ = {st.session_state.k_mean:.2f}**")
                 
