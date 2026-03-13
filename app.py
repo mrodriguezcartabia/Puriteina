@@ -28,9 +28,9 @@ with tab1:
         
         # Datos por defecto para que la app funcione de entrada
         default_data = pd.DataFrame({
-            'TMP': [1.0, 1.0],
-            'J': [1.0, 1.0],
-            'Cb': [1.0, 1.0]
+            'TMP': [0.0],
+            'J': [0.0],
+            'Cb': [0.0]
         })
         
         df = st.data_editor(default_data, num_rows="dynamic")
