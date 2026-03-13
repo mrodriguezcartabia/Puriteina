@@ -99,8 +99,8 @@ with tab1:
                     fjs_dict[cb] = interp1d(df_cb['Delta_pi'], df_cb['J'], kind='linear', fill_value="extrapolate")
                     
             # Crear un rango común de Delta_pi superpuesto para evaluar
-            min_pi = max(df_cb['Delta_pi'].min() for df_cb in dfs.values())
-            max_pi = min(df_cb['Delta_pi'].max() for df_cb in dfs.values())
+            min_pi = max(df_cb['Delta_pi'].min() for df_cb in dfs_dict.values())
+            max_pi = min(df_cb['Delta_pi'].max() for df_cb in dfs_dict.values())
             
             if min_pi < max_pi:
                 pi_range = np.linspace(min_pi, max_pi, 10)
