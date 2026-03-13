@@ -59,16 +59,6 @@ with tab1:
         # Agregamos la línea para leer los decimales al importar desde una hoja de cálculo
         # y convertimos el texto a números de forma segura
         df = df_editado.astype(str).replace(',', '.', regex=True).apply(pd.to_numeric, errors='coerce')
-            
-    # 1. Inicializamos el valor por defecto si no existe
-    if "j_solv_val" not in st.session_state:
-        st.session_state.j_solv_val = 50.0
-    
-    # --- Sección del Botón (en tu otra columna) ---
-    if st.button("Cargar datos de prueba"):
-        st.session_state.j_solv_val = 200.0
-        # Forzamos el rerun para que el widget se actualice visualmente de inmediato
-        st.rerun()
     
     # --- Tu Sección Original ---
     with col2:
@@ -78,7 +68,7 @@ with tab1:
         # 2. Vinculamos el valor al session_state usando 'value' y 'key'
         j_solv = st.number_input(
             "Flujo del solvente ($J$)", 
-            value=st.session_state.j_solv_val, 
+            value=200.00, 
             step=1.0,
             key="j_solv_input" # Key interna para el widget
         )
