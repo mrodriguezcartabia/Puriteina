@@ -93,35 +93,6 @@ with tab1:
             st.warning("Se necesitan al menos dos concentraciones ($C_b$) diferentes para calcular $k$.")
         else:
             # Paso 2c: Cálculo de presión osmótica
-            df['Delta_pi'] = df['TMP'] - (df['J'] / L_fm)
-            
-            # Paso 2d: Cálculo de k para Delta_pi fija
-            cb_vals = sorted(df['Cb'].unique())
-
-            dfs_dict = {}
-            fjs_dict = {}
-            
-            for cb in cb_vals:
-                df_cb = df[df['Cb'] == cb].sort_values('Delta_pi')
-                dfs_dict[cb] = df_cb
-
-                if len(df_cb) > 1: # Se necesitan al menos 2 puntos para interpolar
-                    fjs_dict[cb] = interp1d(df_cb['TMP'], df_cb['J'], kind='linear', fill_value="extrapolate")
-                    
-            k_valores = []
-            
-            for i in range(len(cb_vals) - 1):
-                
-                cb1 = cb_vals[i]
-                cb2 = cb_vals[i+1]
-                
-                min_TMP = dfs_dict[cb]['TMP'].min() 
-                max_TMP = dfs_dict[cb]['TMP'].max()
-                
-                TMP_range = np.linspace(min_TMP, max_TMP, 10)
-                                
-                j1_interp = fjs_dict[cb1](TMP_range)
-                j2_interp = fjs_dict[cb2](TMP_range)
         
             k_mean = procesar_data(df, L_fm)
             st.session_state.k_mean = abs(k_mean)
